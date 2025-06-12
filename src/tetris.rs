@@ -60,4 +60,8 @@ impl Tetris {
     pub fn get_map(&self) -> &Vec<Vec<Tetromino>> {
         &self.map
     }
+
+    pub fn get_score(&self) -> u32 {
+        self.score
+    }
 }
