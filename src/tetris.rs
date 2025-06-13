@@ -1,5 +1,14 @@
+use ratatui::style::Color;
+
+pub enum Rotation {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
 #[derive(Clone, Debug)]
-pub enum Tetromino {
+pub enum TetrominoType {
     E = 0, //Empty
     I = 1,
     L = 2,
@@ -10,38 +19,86 @@ pub enum Tetromino {
     T = 7,
 }
 
+#[derive(Clone, Debug)]
+pub struct Tetromino {
+    shape: TetrominoType,
+}
+
+pub trait TetrominoTrait {
+    fn rotate_clockwise(&mut self);
+    fn rotate_counter_clockwise(&mut self);
+}
+
+// impl TetrominoTrait for Tetromino {}
+
 impl Tetromino {
+    pub fn new(shape: TetrominoType) -> Self {
+        Self { shape }
+    }
+
     fn from_u8(value: u8) -> Tetromino {
         match value {
-            1 => Tetromino::I,
-            2 => Tetromino::L,
-            3 => Tetromino::J,
-            4 => Tetromino::O,
-            5 => Tetromino::Z,
-            6 => Tetromino::S,
-            7 => Tetromino::T,
-            _ => Tetromino::E,
+            1 => Self {
+                shape: TetrominoType::I,
+            },
+            2 => Self {
+                shape: TetrominoType::L,
+            },
+            3 => Self {
+                shape: TetrominoType::J,
+            },
+            4 => Self {
+                shape: TetrominoType::O,
+            },
+            5 => Self {
+                shape: TetrominoType::Z,
+            },
+            6 => Self {
+                shape: TetrominoType::S,
+            },
+            7 => Self {
+                shape: TetrominoType::T,
+            },
+            _ => Self {
+                shape: TetrominoType::E,
+            },
+        }
+    }
+
+    pub fn get_color(&self) -> Color {
+        match self.shape {
+            TetrominoType::I => Color::Cyan,
+            TetrominoType::L => Color::Yellow,
+            TetrominoType::J => Color::Blue,
+            TetrominoType::O => Color::LightGreen,
+            TetrominoType::Z => Color::Red,
+            TetrominoType::S => Color::Green,
+            TetrominoType::T => Color::Magenta,
+            TetrominoType::E => Color::Cyan,
         }
     }
 }
 
 pub struct Tetris {
     score: u32,
-    hold: Tetromino,
+    hold: TetrominoType,
     bag: Vec<Tetromino>,
     map: Vec<Vec<Tetromino>>,
+    current_rotation: u8,
 }
 
 impl Tetris {
     fn refill_bag(&mut self) {
         self.bag = (1..8).map(Tetromino::from_u8).collect();
     }
+
     pub fn new() -> Self {
         Self {
             score: 0,
-            hold: Tetromino::E,
+            hold: TetrominoType::E,
             bag: (1..8).map(Tetromino::from_u8).collect(),
-            map: vec![vec![Tetromino::E; 10]; 40],
+            map: vec![vec![Tetromino::new(TetrominoType::E); 10]; 40],
+            current_rotation: 0,
         }
     }
 
