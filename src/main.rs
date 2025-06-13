@@ -5,7 +5,6 @@ use std::error::Error;
 use std::time::Duration;
 
 use clap::Parser;
-mod ui;
 
 /// Demo
 #[derive(Debug, Parser)]

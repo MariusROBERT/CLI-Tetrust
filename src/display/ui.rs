@@ -1,7 +1,6 @@
-use crate::display::utils::center::{center};
+use crate::display::utils::center::center;
 use crate::tetris::Tetris;
 use ratatui::layout::{Alignment, Constraint, Flex, Layout, Rect};
-use ratatui::text::Text;
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
 use ratatui::{Frame, border, symbols};
 
@@ -32,7 +31,7 @@ fn draw_game(frame: &mut Frame, game: &mut Tetris, area: Rect) {
 }
 
 fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
-    let horizontal_centered_layout = center(frame.area(), Constraint::Fill(1), Constraint::Fill(1));
+    let horizontal_centered_layout = center(area, Constraint::Fill(1), Constraint::Fill(1));
     let vertical_chunks = Layout::vertical([Constraint::Fill(1), Constraint::Fill(1)])
         .flex(Flex::Center)
         .margin(1)
@@ -41,15 +40,26 @@ fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
     let block = Block::bordered()
         .title_alignment(Alignment::Center)
         .borders(border!(TOP, BOTTOM, LEFT))
+        .border_type(BorderType::Rounded)
         .title("Score");
     frame.render_widget(block, horizontal_centered_layout);
 
     frame.render_widget(
-        Paragraph::new(format!("Score: {}", game.get_score()))
-            .block(Block::bordered().border_type(BorderType::Double)),
-        vertical_chunks[0],
+        Block::bordered()
+            .title_alignment(Alignment::Center)
+            .border_type(BorderType::Rounded)
+            .title("Next"),
+        center(
+            vertical_chunks[0],
+            Constraint::Length(12),
+            Constraint::Length(6),
+        ),
     );
-    frame.render_widget(Text::from("Autre texte"), vertical_chunks[1]);
+
+    frame.render_widget(
+        Paragraph::new(format!("Score: {}", game.get_score())).centered(), // .block(Block::bordered().border_type(BorderType::Rounded) )
+        center(vertical_chunks[1], Constraint::Fill(1), Constraint::Fill(1)),
+    );
 }
 
 fn draw_right(frame: &mut Frame, game: &mut Tetris, area: Rect) {
@@ -62,6 +72,6 @@ fn draw_right(frame: &mut Frame, game: &mut Tetris, area: Rect) {
     let block = Block::bordered()
         .title_alignment(Alignment::Center)
         .borders(border!(TOP, BOTTOM, RIGHT))
-        .title("Next");
+        .title("Hold");
     frame.render_widget(block, vertical_layout);
 }

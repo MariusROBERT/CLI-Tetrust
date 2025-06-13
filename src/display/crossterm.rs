@@ -11,7 +11,7 @@ use ratatui::Terminal;
 use ratatui::backend::{Backend, CrosstermBackend};
 
 use crate::tetris::Tetris;
-use crate::ui;
+use crate::display::ui;
 
 pub fn run(tick_rate: Duration, enhanced_graphics: bool) -> Result<(), Box<dyn Error>> {
     // setup terminal
