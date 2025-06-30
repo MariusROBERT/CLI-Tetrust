@@ -1,6 +1,7 @@
 use crate::display::utils::center::center;
 use crate::tetris::Tetris;
 use ratatui::layout::{Alignment, Constraint, Flex, Layout, Rect};
+use ratatui::text::Text;
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
 use ratatui::{Frame, border, symbols};
 
@@ -27,6 +28,9 @@ fn draw_game(frame: &mut Frame, game: &mut Tetris, area: Rect) {
             ..symbols::border::PLAIN
         })
         .title("Tetrust");
+
+    let game_display = Text::from(game.get_map());
+    frame.render_widget(game_display, area);
     frame.render_widget(block, area);
 }
 
@@ -48,7 +52,7 @@ fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
         Block::bordered()
             .title_alignment(Alignment::Center)
             .border_type(BorderType::Rounded)
-            .title("Next"),
+            .title(" Hold "),
         center(
             vertical_chunks[0],
             Constraint::Length(12),
@@ -72,6 +76,6 @@ fn draw_right(frame: &mut Frame, game: &mut Tetris, area: Rect) {
     let block = Block::bordered()
         .title_alignment(Alignment::Center)
         .borders(border!(TOP, BOTTOM, RIGHT))
-        .title("Hold");
+        .title("Next");
     frame.render_widget(block, vertical_layout);
 }
