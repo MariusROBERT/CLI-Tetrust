@@ -30,7 +30,8 @@ fn draw_game(frame: &mut Frame, game: &mut Tetris, area: Rect) {
         .title("Tetrust");
 
     let game_display = Text::from(game.get_map());
-    frame.render_widget(game_display, area);
+    let layout = center(area, Constraint::Length(20), Constraint::Length(20));
+    frame.render_widget(game_display, layout);
     frame.render_widget(block, area);
 }
 
