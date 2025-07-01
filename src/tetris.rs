@@ -46,7 +46,7 @@ impl TetrominoType {
             TetrominoType::Z => Color::Red,
             TetrominoType::S => Color::Green,
             TetrominoType::T => Color::Magenta,
-            TetrominoType::E => Color::Cyan,
+            TetrominoType::E => Color::White,
         }
     }
 }
@@ -126,7 +126,7 @@ impl Tetromino {
         };
         Self {
             shape,
-            pos: (0, 4),
+            pos: (0, 3),
             pieces,
         }
     }
@@ -154,7 +154,7 @@ impl Tetris {
 
     pub fn new() -> Self {
         let mut bag: Vec<TetrominoType> = (1..8).map(TetrominoType::from_u8).collect();
-        // bag.shuffle(&mut rand::rng());
+        bag.shuffle(&mut rand::rng());
         let current = Tetromino::new(bag.pop().unwrap_or(TetrominoType::E));
         Self {
             score: 0,
