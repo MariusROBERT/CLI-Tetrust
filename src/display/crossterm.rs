@@ -10,8 +10,8 @@ use crossterm::terminal::{
 use ratatui::Terminal;
 use ratatui::backend::{Backend, CrosstermBackend};
 
-use crate::tetris::Tetris;
 use crate::display::ui;
+use crate::tetris::Tetris;
 
 pub fn run(tick_rate: Duration, enhanced_graphics: bool) -> Result<(), Box<dyn Error>> {
     // setup terminal
@@ -64,17 +64,10 @@ fn run_app<B: Backend>(
         }
         if let Some(key) = event::read()?.as_key_press_event() {
             match key.code {
-                // KeyCode::Char('h') | KeyCode::Left => app.on_left(),
-                // KeyCode::Char('j') | KeyCode::Down => app.on_down(),
-                // KeyCode::Char('k') | KeyCode::Up => app.on_up(),
-                // KeyCode::Char('l') | KeyCode::Right => app.on_right(),
-                // KeyCode::Char(c) => app.on_key(c),
-                // KeyCode::Char('q') => {
-                //     should_quit = true;
-                // }
-                KeyCode::Esc => {
-                    should_quit = true;
-                }
+                KeyCode::Char('q') => game.rotate_counter_clockwise(),
+                KeyCode::Char('e') => game.rotate_clockwise(),
+                KeyCode::Esc => should_quit = true,
+
                 _ => {}
             }
         }

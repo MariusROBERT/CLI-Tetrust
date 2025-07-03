@@ -1,15 +1,7 @@
-use ratatui::style::{Color, Stylize};
-use std::cmp::PartialEq;
-
 use rand::seq::SliceRandom;
 use ratatui::prelude::{Line, Span};
-
-pub enum Rotation {
-    Up,
-    Right,
-    Down,
-    Left,
-}
+use ratatui::style::{Color, Stylize};
+use std::cmp::PartialEq;
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub enum TetrominoType {
@@ -42,7 +34,7 @@ impl TetrominoType {
             TetrominoType::I => Color::Cyan,
             TetrominoType::L => Color::Yellow,
             TetrominoType::J => Color::Blue,
-            TetrominoType::O => Color::LightGreen,
+            TetrominoType::O => Color::LightYellow,
             TetrominoType::Z => Color::Red,
             TetrominoType::S => Color::Green,
             TetrominoType::T => Color::Magenta,
@@ -63,7 +55,29 @@ pub trait TetrominoTrait {
     fn rotate_counter_clockwise(&mut self);
 }
 
-// impl TetrominoTrait for Tetromino {}
+impl TetrominoTrait for Tetromino {
+    fn rotate_clockwise(&mut self) {
+        match self.shape {
+            TetrominoType::E => panic!("Empty tetromino shouldn't be here"),
+            TetrominoType::O => { /*No rotation needed*/ }
+            TetrominoType::I => {
+                self.rotate_i([4, 8, 12, 13, 14, 15, 11, 7, 3, 2, 1, 0], [9, 10, 6, 5])
+            }
+            _ => self.rotate([3, 6, 7, 8, 5, 2, 1, 0]),
+        };
+    }
+
+    fn rotate_counter_clockwise(&mut self) {
+        match self.shape {
+            TetrominoType::E => panic!("Empty tetromino shouldn't be here"),
+            TetrominoType::O => { /*No rotation needed*/ }
+            TetrominoType::I => {
+                self.rotate_i([0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4], [5, 6, 10, 9])
+            }
+            _ => self.rotate([0, 1, 2, 5, 8, 7, 6, 3]),
+        }
+    }
+}
 
 impl Tetromino {
     pub fn new(shape: TetrominoType) -> Self {
@@ -134,6 +148,32 @@ impl Tetromino {
     pub fn get_color(&self) -> Color {
         TetrominoType::get_color(&self.shape)
     }
+
+    fn rotate(&mut self, round_order: [usize; 8]) {
+        let mut swap: TetrominoType;
+        for i in 0..round_order.len() - 2 {
+            swap = self.pieces[round_order[i] / 3][round_order[i] % 3];
+            self.pieces[round_order[i] / 3][round_order[i] % 3] =
+                self.pieces[round_order[i + 2] / 3][round_order[i + 2] % 3];
+            self.pieces[round_order[i + 2] / 3][round_order[i + 2] % 3] = swap;
+        }
+    }
+
+    fn rotate_i(&mut self, round_order1: [usize; 12], round_order2: [usize; 4]) {
+        let mut swap: TetrominoType;
+        for i in 0..round_order1.len() - 3 {
+            swap = self.pieces[round_order1[i] / 4][round_order1[i] % 4];
+            self.pieces[round_order1[i] / 4][round_order1[i] % 4] =
+                self.pieces[round_order1[i + 3] / 4][round_order1[i + 3] % 4];
+            self.pieces[round_order1[i + 3] / 4][round_order1[i + 3] % 4] = swap;
+        }
+        for i in 0..round_order2.len() - 1 {
+            swap = self.pieces[round_order2[i] / 4][round_order2[i] % 4];
+            self.pieces[round_order2[i] / 4][round_order2[i] % 4] =
+                self.pieces[round_order2[i + 1] / 4][round_order2[i + 1] % 4];
+            self.pieces[round_order2[i + 1] / 4][round_order2[i + 1] % 4] = swap;
+        }
+    }
 }
 
 pub struct Tetris {
@@ -142,7 +182,6 @@ pub struct Tetris {
     bag: Vec<TetrominoType>,
     map: [[TetrominoType; 10]; 22],
     current: Tetromino,
-    current_rotation: u8,
 }
 
 impl Tetris {
@@ -161,9 +200,7 @@ impl Tetris {
             hold: TetrominoType::E,
             bag,
             map: [[TetrominoType::E; 10]; 22],
-            // map: vec![vec![TetrominoType::E; 10]; 22],
             current,
-            current_rotation: 0,
         }
     }
 
@@ -208,5 +245,13 @@ impl Tetris {
 
     pub fn get_current(&self) -> &Tetromino {
         &self.current
+    }
+
+    pub fn rotate_counter_clockwise(&mut self) {
+        self.current.rotate_counter_clockwise();
+    }
+
+    pub fn rotate_clockwise(&mut self) {
+        self.current.rotate_clockwise();
     }
 }
