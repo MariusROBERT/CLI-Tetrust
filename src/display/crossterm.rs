@@ -13,19 +13,15 @@ use ratatui::backend::{Backend, CrosstermBackend};
 use crate::display::ui;
 use crate::tetris::Tetris;
 
-pub fn run(tick_rate: Duration, enhanced_graphics: bool) -> Result<(), Box<dyn Error>> {
+pub fn run(tick_rate: Duration) -> Result<(), Box<dyn Error>> {
     // setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
-    execute!(
-        stdout /*, EnterAlternateScreen*/ /*, EnableMouseCapture*/
-    )?;
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // create app and run it
-    // let app = App::new("Crossterm Demo", enhanced_graphics);
-    // let app_result = run_app(&mut terminal, app, tick_rate);
+    // create game and run it
     let tetris = Tetris::new();
     let app_result = run_app(&mut terminal, tetris, tick_rate);
 
@@ -64,10 +60,14 @@ fn run_app<B: Backend>(
         }
         if let Some(key) = event::read()?.as_key_press_event() {
             match key.code {
-                KeyCode::Char('q') => game.rotate_counter_clockwise(),
-                KeyCode::Char('e') => game.rotate_clockwise(),
                 KeyCode::Esc => should_quit = true,
 
+                KeyCode::Char('q') => game.rotate_counter_clockwise(),
+                KeyCode::Char('e') => game.rotate_clockwise(),
+
+                KeyCode::Char('a') => game.r#move([0, -1]),
+                KeyCode::Char('s') => game.r#move([1, 0]),
+                KeyCode::Char('d') => game.r#move([0, 1]),
                 _ => {}
             }
         }

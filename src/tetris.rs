@@ -3,6 +3,11 @@ use ratatui::prelude::{Line, Span};
 use ratatui::style::{Color, Stylize};
 use std::cmp::PartialEq;
 
+const TRUE_MAP_HEIGHT: usize = 22;
+const MAP_WIDTH: usize = 10;
+const MAP_HEIGHT: usize = 20;
+const HIDDEN_ROWS: usize = TRUE_MAP_HEIGHT - MAP_HEIGHT;
+
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub enum TetrominoType {
     E = 0, //Empty
@@ -46,7 +51,7 @@ impl TetrominoType {
 #[derive(Clone, Debug)]
 pub struct Tetromino {
     shape: TetrominoType,
-    pos: (u8, u8),
+    pos: (i8, i8),
     pieces: Vec<Vec<TetrominoType>>,
 }
 
@@ -180,7 +185,7 @@ pub struct Tetris {
     score: u32,
     hold: TetrominoType,
     bag: Vec<TetrominoType>,
-    map: [[TetrominoType; 10]; 22],
+    map: [[TetrominoType; MAP_WIDTH]; TRUE_MAP_HEIGHT],
     current: Tetromino,
 }
 
@@ -199,7 +204,7 @@ impl Tetris {
             score: 0,
             hold: TetrominoType::E,
             bag,
-            map: [[TetrominoType::E; 10]; 22],
+            map: [[TetrominoType::E; MAP_WIDTH]; TRUE_MAP_HEIGHT],
             current,
         }
     }
@@ -217,16 +222,21 @@ impl Tetris {
     }
 
     pub fn get_map(&self) -> Vec<Line> {
-        let mut display_map: [[TetrominoType; 10]; 20] = [[TetrominoType::E; 10]; 20];
-        display_map.copy_from_slice(&self.map[2..]);
-        for i in 0..self.current.pieces.len() {
-            for j in 0..self.current.pieces[i].len() {
-                if self.current.pieces[i][j] != TetrominoType::E {
-                    display_map[i + self.current.pos.0 as usize][j + self.current.pos.1 as usize] =
-                        self.current.pieces[i][j].clone();
+        let mut display_map: [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] =
+            [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
+        display_map.copy_from_slice(&self.map[HIDDEN_ROWS..]);
+        for y in 0..self.current.pieces.len() {
+            for x in 0..self.current.pieces[y].len() {
+                if self.current.pieces[y][x] != TetrominoType::E
+                    && y as i8 + self.current.pos.0 >= HIDDEN_ROWS as i8
+                {
+                    display_map[(y as i8 + self.current.pos.0 - HIDDEN_ROWS as i8) as usize]
+                        [(x as i8 + self.current.pos.1) as usize] =
+                        self.current.pieces[y][x].clone();
                 }
             }
         }
+
         display_map
             .iter()
             .map(|row| {
@@ -253,5 +263,35 @@ impl Tetris {
 
     pub fn rotate_clockwise(&mut self) {
         self.current.rotate_clockwise();
+    }
+
+    fn can_move(&self, vector: [i8; 2]) -> bool {
+        for (y, row) in self.current.pieces.as_slice().iter().enumerate() {
+            for (x, piece) in row.iter().enumerate() {
+                if *piece == TetrominoType::E {
+                    continue;
+                }
+                let next_y: i8 = y as i8 + self.current.pos.0 + vector[0];
+                let next_x: i8 = x as i8 + self.current.pos.1 + vector[1];
+
+                if next_y >= TRUE_MAP_HEIGHT as i8 {
+                    return false;
+                }
+                if next_x < 0 || next_x >= MAP_WIDTH as i8 {
+                    return false;
+                }
+                if self.map[next_y as usize][next_x as usize] != TetrominoType::E {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    pub fn r#move(&mut self, vector: [i8; 2]) {
+        if self.can_move(vector) {
+            self.current.pos.0 += vector[0];
+            self.current.pos.1 += vector[1];
+        }
     }
 }
