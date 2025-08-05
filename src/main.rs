@@ -10,8 +10,8 @@ use clap::Parser;
 #[derive(Debug, Parser)]
 struct Cli {
     /// time in ms between two ticks.
-    /// will probably be removed
-    #[arg(short, long, default_value_t = 250)]
+    /// will maybe be removed as user shouldn't be able to edit it
+    #[arg(short, long, default_value_t = 16)] //62.5 fps
     tick_rate: u64,
 }
 

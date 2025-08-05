@@ -5,10 +5,10 @@ use std::time::{Duration, Instant};
 use crossterm::event::{self, DisableMouseCapture, EnableMouseCapture, KeyCode};
 use crossterm::execute;
 use crossterm::terminal::{
-    EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
+    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
 };
-use ratatui::Terminal;
 use ratatui::backend::{Backend, CrosstermBackend};
+use ratatui::Terminal;
 
 use crate::display::ui;
 use crate::tetris::Tetris;
@@ -54,7 +54,7 @@ fn run_app<B: Backend>(
 
         let timeout = tick_rate.saturating_sub(last_tick.elapsed());
         if !event::poll(timeout)? {
-            // app.on_tick();
+            game.on_tick();
             last_tick = Instant::now();
             continue;
         }

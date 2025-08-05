@@ -281,27 +281,69 @@ pub struct Tetris {
     score: u32,
     hold: TetrominoType,
     bag: Vec<TetrominoType>,
+    next_bag: Vec<TetrominoType>,
     map: [[TetrominoType; MAP_WIDTH]; TRUE_MAP_HEIGHT],
     current: Tetromino,
+    tick: u8,
+    is_blocked: bool,
 }
 
 impl Tetris {
     fn refill_bag(&mut self) {
-        let mut bag: Vec<TetrominoType> = (1..8).map(TetrominoType::from_u8).collect();
-        bag.shuffle(&mut rand::rng());
-        self.bag = bag;
+        self.bag = self.next_bag.clone();
+        let mut new_bag: Vec<TetrominoType> = (1..8).map(TetrominoType::from_u8).collect();
+        new_bag.shuffle(&mut rand::rng());
+        self.next_bag = new_bag;
     }
 
     pub fn new() -> Self {
         let mut bag: Vec<TetrominoType> = (1..8).map(TetrominoType::from_u8).collect();
+        let mut next_bag: Vec<TetrominoType> = (1..8).map(TetrominoType::from_u8).collect();
         bag.shuffle(&mut rand::rng());
+        next_bag.shuffle(&mut rand::rng());
         let current = Tetromino::new(bag.pop().unwrap_or(TetrominoType::E));
         Self {
             score: 0,
             hold: TetrominoType::E,
             bag,
+            next_bag,
             map: [[TetrominoType::E; MAP_WIDTH]; TRUE_MAP_HEIGHT],
             current,
+            tick: 0,
+            is_blocked: false,
+        }
+    }
+
+    pub fn on_tick(&mut self) {
+        self.tick = (self.tick + 1) % 60; //TODO update the value "60" to increase speed at higher levels
+        if (self.tick != 0) {
+            return;
+        }
+        if (self.can_move([1, 0])) {
+            self.r#move([1, 0]);
+            return;
+        }
+        if (self.is_blocked) {
+            self.lock_current();
+            self.is_blocked = false;
+            return;
+        }
+        self.is_blocked = true;
+    }
+
+    fn lock_current(&mut self) {
+        for y in 0..self.current.pieces.len() {
+            for x in 0..self.current.pieces[y].len() {
+                if (self.current.pieces[y][x] == TetrominoType::E) {
+                    continue;
+                }
+                self.map[(self.current.pos.0 + y as i8) as usize]
+                    [(self.current.pos.1 + x as i8) as usize] = self.current.shape;
+            }
+        }
+        self.current = Tetromino::new(self.bag.pop().unwrap_or(TetrominoType::E));
+        if (self.bag.len() == 0) {
+            self.refill_bag();
         }
     }
 
