@@ -342,6 +342,21 @@ impl Tetris {
             }
         }
         self.current = Tetromino::new(self.bag.pop().unwrap_or(TetrominoType::E));
+
+        for y in 0..self.current.pieces.len() {
+            for x in 0..self.current.pieces[y].len() {
+                if (self.current.pieces[y][x] == TetrominoType::E) {
+                    continue;
+                }
+                if (self.map[(self.current.pos.0 + y as i8) as usize]
+                    [(self.current.pos.1 + x as i8) as usize]
+                    != TetrominoType::E)
+                {
+                    todo!("Game lost")
+                }
+            }
+        }
+
         if (self.bag.len() == 0) {
             self.refill_bag();
         }
@@ -350,7 +365,7 @@ impl Tetris {
 
     fn check_lines(&mut self) {
         'row: for y in (0..self.map.len()).rev() {
-            'column: for x in 0..self.map[y].len() {
+            for x in 0..self.map[y].len() {
                 if (self.map[y][x] == TetrominoType::E) {
                     // If line has Empty space, it's not empty
                     continue 'row;
@@ -363,7 +378,7 @@ impl Tetris {
     }
 
     fn delete_line(&mut self, line: usize) {
-        'delete_row: for i in (0..line).rev() {
+        for i in (0..line).rev() {
             // Move each line below
             self.map[i + 1] = self.map[i];
         }
