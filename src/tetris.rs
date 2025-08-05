@@ -377,18 +377,6 @@ impl Tetris {
         }
     }
 
-    pub fn debug(&self) {
-        println!("Score: {}", self.score);
-        println!("Bag: {:?}", &self.bag);
-        self.map.iter().for_each(|row| {
-            println!("{:?}", row);
-        });
-    }
-
-    pub fn get_case(&self, x: u8, y: u8) -> &TetrominoType {
-        &self.map[y as usize][x as usize]
-    }
-
     pub fn get_map(&self) -> Vec<Line> {
         let mut display_map: [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] =
             [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
@@ -419,10 +407,6 @@ impl Tetris {
 
     pub fn get_score(&self) -> u32 {
         self.score
-    }
-
-    pub fn get_current(&self) -> &Tetromino {
-        &self.current
     }
 
     pub fn rotate_counter_clockwise(&mut self) {
