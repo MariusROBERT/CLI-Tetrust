@@ -28,7 +28,7 @@ Don't expect this Tetris to be 100% compliant with the official rules.
     - [x] Basic rotation
     - [x] Tetromino automatically move down
     - [x] Tetromino lock when reaching bottom and spawning a new one
-    - [ ] Clear line when full
+    - [x] Clear line when full
     - [ ] Detect lose
 
 

@@ -345,6 +345,36 @@ impl Tetris {
         if (self.bag.len() == 0) {
             self.refill_bag();
         }
+        self.check_lines();
+    }
+
+    fn check_lines(&mut self) {
+        'row: for y in (0..self.map.len()).rev() {
+            'column: for x in 0..self.map[y].len() {
+                if (self.map[y][x] == TetrominoType::E) {
+                    // If line has Empty space, it's not empty
+                    continue 'row;
+                }
+            }
+
+            self.delete_line(y);
+            self.map[0] = [TetrominoType::E; MAP_WIDTH]; // Clear the top line as it won't be moved from the line -1
+        }
+    }
+
+    fn delete_line(&mut self, line: usize) {
+        'delete_row: for i in (0..line).rev() {
+            // Move each line below
+            self.map[i + 1] = self.map[i];
+        }
+        if (self.map[line]
+            .into_iter()
+            .position(|x| x == TetrominoType::E)
+            == None)
+        // If we just copied another full line, delete it again
+        {
+            self.delete_line(line);
+        }
     }
 
     pub fn debug(&self) {
