@@ -271,6 +271,104 @@ impl Tetromino {
             }
         }
     }
+
+    pub fn as_ratatui_text(tetromino_type: &TetrominoType) -> Vec<Line> {
+        //TODO try to center O and I tetromino by moving them 1 char to the right
+        (match tetromino_type {
+            TetrominoType::E => {
+                vec![vec![]]
+            }
+            TetrominoType::I => {
+                vec![vec![], vec![], vec![TetrominoType::I; 4]]
+            }
+            TetrominoType::L => {
+                vec![
+                    vec![],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::L,
+                    ],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::L,
+                        TetrominoType::L,
+                        TetrominoType::L,
+                    ],
+                ]
+            }
+            TetrominoType::J => {
+                vec![
+                    vec![],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::J,
+                        TetrominoType::E,
+                        TetrominoType::E,
+                    ],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::J,
+                        TetrominoType::J,
+                        TetrominoType::J,
+                    ],
+                ]
+            }
+            TetrominoType::O => {
+                vec![
+                    vec![],
+                    vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
+                    vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
+                ]
+            }
+            TetrominoType::Z => {
+                vec![
+                    vec![],
+                    vec![TetrominoType::E, TetrominoType::Z, TetrominoType::Z],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::Z,
+                        TetrominoType::Z,
+                    ],
+                ]
+            }
+            TetrominoType::S => {
+                vec![
+                    vec![],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::S,
+                        TetrominoType::S,
+                    ],
+                    vec![TetrominoType::E, TetrominoType::S, TetrominoType::S],
+                ]
+            }
+            TetrominoType::T => {
+                vec![
+                    vec![],
+                    vec![TetrominoType::E, TetrominoType::E, TetrominoType::T],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::T,
+                        TetrominoType::T,
+                        TetrominoType::T,
+                    ],
+                ]
+            }
+        })
+        .iter()
+        .map(|row| {
+            Line::from(
+                row.iter()
+                    .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.get_color()))
+                    .collect::<Vec<Span>>(),
+            )
+        })
+        .collect()
+    }
 }
 
 pub struct Tetris {
