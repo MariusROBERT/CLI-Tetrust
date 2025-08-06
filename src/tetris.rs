@@ -93,7 +93,7 @@ impl TetrominoTrait for Tetromino {
 
 impl Tetromino {
     pub fn new(shape: TetrominoType) -> Self {
-        if (shape == TetrominoType::E) {
+        if shape == TetrominoType::E {
             panic!("Cannot create Tetris");
         }
         let pieces: Vec<Vec<TetrominoType>> = match shape {
@@ -156,10 +156,6 @@ impl Tetromino {
             pos: (0, 3),
             pieces,
         }
-    }
-
-    pub fn get_color(&self) -> Color {
-        TetrominoType::get_color(&self.shape)
     }
 
     fn can_rotate(
@@ -286,6 +282,7 @@ pub struct Tetris {
     current: Tetromino,
     tick: u8,
     is_blocked: bool,
+    is_lost: bool,
 }
 
 impl Tetris {
@@ -311,19 +308,20 @@ impl Tetris {
             current,
             tick: 0,
             is_blocked: false,
+            is_lost: false,
         }
     }
 
     pub fn on_tick(&mut self) {
         self.tick = (self.tick + 1) % 60; //TODO update the value "60" to increase speed at higher levels
-        if (self.tick != 0) {
+        if self.tick != 0 {
             return;
         }
-        if (self.can_move([1, 0])) {
+        if self.can_move([1, 0]) {
             self.r#move([1, 0]);
             return;
         }
-        if (self.is_blocked) {
+        if self.is_blocked {
             self.lock_current();
             self.is_blocked = false;
             return;
@@ -334,7 +332,7 @@ impl Tetris {
     fn lock_current(&mut self) {
         for y in 0..self.current.pieces.len() {
             for x in 0..self.current.pieces[y].len() {
-                if (self.current.pieces[y][x] == TetrominoType::E) {
+                if self.current.pieces[y][x] == TetrominoType::E {
                     continue;
                 }
                 self.map[(self.current.pos.0 + y as i8) as usize]
@@ -345,19 +343,19 @@ impl Tetris {
 
         for y in 0..self.current.pieces.len() {
             for x in 0..self.current.pieces[y].len() {
-                if (self.current.pieces[y][x] == TetrominoType::E) {
+                if self.current.pieces[y][x] == TetrominoType::E {
                     continue;
                 }
-                if (self.map[(self.current.pos.0 + y as i8) as usize]
+                if self.map[(self.current.pos.0 + y as i8) as usize]
                     [(self.current.pos.1 + x as i8) as usize]
-                    != TetrominoType::E)
+                    != TetrominoType::E
                 {
-                    todo!("Game lost")
+                    self.is_lost = true;
                 }
             }
         }
 
-        if (self.bag.len() == 0) {
+        if self.bag.len() == 0 {
             self.refill_bag();
         }
         self.check_lines();
@@ -366,7 +364,7 @@ impl Tetris {
     fn check_lines(&mut self) {
         'row: for y in (0..self.map.len()).rev() {
             for x in 0..self.map[y].len() {
-                if (self.map[y][x] == TetrominoType::E) {
+                if self.map[y][x] == TetrominoType::E {
                     // If line has Empty space, it's not empty
                     continue 'row;
                 }
@@ -382,10 +380,10 @@ impl Tetris {
             // Move each line below
             self.map[i + 1] = self.map[i];
         }
-        if (self.map[line]
+        if self.map[line]
             .into_iter()
             .position(|x| x == TetrominoType::E)
-            == None)
+            == None
         // If we just copied another full line, delete it again
         {
             self.delete_line(line);
@@ -460,5 +458,9 @@ impl Tetris {
             self.current.pos.0 += vector[0];
             self.current.pos.1 += vector[1];
         }
+    }
+
+    pub fn is_lost(&self) -> bool {
+        self.is_lost
     }
 }
