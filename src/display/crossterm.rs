@@ -5,12 +5,13 @@ use std::time::{Duration, Instant};
 use crossterm::event::{self, DisableMouseCapture, EnableMouseCapture, KeyCode};
 use crossterm::execute;
 use crossterm::terminal::{
-    disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
+    EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
 };
-use ratatui::backend::{Backend, CrosstermBackend};
 use ratatui::Terminal;
+use ratatui::backend::{Backend, CrosstermBackend};
 
-use crate::display::ui;
+use crate::display::{game_ui, menu_ui};
+use crate::menu::{Menu, Options};
 use crate::tetris::Tetris;
 
 pub fn run(tick_rate: Duration) -> Result<(), Box<dyn Error>> {
@@ -22,8 +23,22 @@ pub fn run(tick_rate: Duration) -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     // create game and run it
-    let tetris = Tetris::new();
-    let app_result = run_app(&mut terminal, tetris, tick_rate);
+    loop {
+        match run_menu(&mut terminal) {
+            Ok(true) => break,
+            Err(e) => {
+                eprintln!("{e:?}");
+            }
+            _ => {}
+        };
+        match run_game(&mut terminal, Tetris::new(), tick_rate) {
+            Ok(true) => break,
+            Err(e) => {
+                eprintln!("{e:?}");
+            }
+            _ => {}
+        };
+    }
 
     // restore terminal
     disable_raw_mode()?;
@@ -34,23 +49,22 @@ pub fn run(tick_rate: Duration) -> Result<(), Box<dyn Error>> {
     )?;
     terminal.show_cursor()?;
 
-    if let Err(err) = app_result {
-        println!("{err:?}");
-    }
-
     Ok(())
 }
 
-fn run_app<B: Backend>(
+fn run_game<B: Backend>(
     terminal: &mut Terminal<B>,
     mut game: Tetris,
     tick_rate: Duration,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<bool, Box<dyn Error>> {
     let mut last_tick = Instant::now();
-    let mut should_quit = false;
 
-    while !should_quit {
-        terminal.draw(|frame| ui::draw(frame, &mut game))?;
+    loop {
+        terminal.draw(|frame| game_ui::draw(frame, &mut game))?;
+
+        if game.is_lost() {
+            return Ok(false);
+        }
 
         let timeout = tick_rate.saturating_sub(last_tick.elapsed());
         if !event::poll(timeout)? {
@@ -60,7 +74,7 @@ fn run_app<B: Backend>(
         }
         if let Some(key) = event::read()?.as_key_press_event() {
             match key.code {
-                KeyCode::Esc => should_quit = true,
+                KeyCode::Esc => return Ok(true),
 
                 KeyCode::Char('q') => game.rotate_counter_clockwise(),
                 KeyCode::Char('e') => game.rotate_clockwise(),
@@ -72,5 +86,28 @@ fn run_app<B: Backend>(
             }
         }
     }
-    Ok(())
+}
+
+fn run_menu<B: Backend>(terminal: &mut Terminal<B>) -> Result<bool, Box<dyn Error>> {
+    let mut menu = Menu::new();
+
+    loop {
+        terminal.draw(|frame| menu_ui::draw(frame, &menu))?;
+
+        match menu.get_selected() {
+            Options::QUIT => return Ok(true),
+            Options::NEW => return Ok(false),
+            _ => { /* Don't care */ }
+        };
+
+        if let Some(key) = event::read()?.as_key_press_event() {
+            match key.code {
+                KeyCode::Esc => return Ok(true),
+                KeyCode::Up | KeyCode::Char('w') => menu.move_up(),
+                KeyCode::Down | KeyCode::Char('s') => menu.move_down(),
+                KeyCode::Enter => menu.select(),
+                _ => {}
+            }
+        }
+    }
 }

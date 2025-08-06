@@ -1,4 +1,5 @@
 mod display;
+mod menu;
 mod tetris;
 
 use std::error::Error;
