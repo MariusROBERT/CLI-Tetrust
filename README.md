@@ -44,3 +44,6 @@ Don't expect this Tetris to be 100% compliant with the official rules.
 - [ ] QOL features
     - [ ] Show has a shadow where the piece will fall if not moved or rotate
     - [ ] Adapt display depending on the size of the window
+    - [ ] Add a start menu
+    - [ ] Add a pause option and pause menu
+    - [ ] Save scores somewhere
