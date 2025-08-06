@@ -283,6 +283,7 @@ pub struct Tetris {
     tick: u8,
     is_blocked: bool,
     is_lost: bool,
+    has_hold_this_round: bool,
 }
 
 impl Tetris {
@@ -309,6 +310,7 @@ impl Tetris {
             tick: 0,
             is_blocked: false,
             is_lost: false,
+            has_hold_this_round: false,
         }
     }
 
@@ -359,6 +361,7 @@ impl Tetris {
             self.refill_bag();
         }
         self.check_lines();
+        self.has_hold_this_round = false;
     }
 
     fn check_lines(&mut self) {
@@ -462,5 +465,23 @@ impl Tetris {
 
     pub fn is_lost(&self) -> bool {
         self.is_lost
+    }
+
+    pub fn hold(&mut self) {
+        if self.has_hold_this_round {
+            return;
+        }
+        let swap: TetrominoType = self.current.shape;
+        if self.hold == TetrominoType::E {
+            self.current = Tetromino::new(self.bag.pop().unwrap_or(TetrominoType::E));
+        } else {
+            self.current = Tetromino::new(self.hold);
+        }
+        self.hold = swap;
+        self.has_hold_this_round = true;
+    }
+
+    pub fn get_hold(&self) -> TetrominoType {
+        self.hold
     }
 }

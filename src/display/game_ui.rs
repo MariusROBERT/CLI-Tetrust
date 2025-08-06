@@ -53,7 +53,8 @@ fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
         Block::bordered()
             .title_alignment(Alignment::Center)
             .border_type(BorderType::Rounded)
-            .title(" Hold "),
+            .title(" Hold ")
+            .bg(game.get_hold().get_color()),
         center(
             vertical_chunks[0],
             Constraint::Length(12),

@@ -82,6 +82,9 @@ fn run_game<B: Backend>(
                 KeyCode::Char('a') => game.r#move([0, -1]),
                 KeyCode::Char('s') => game.r#move([1, 0]),
                 KeyCode::Char('d') => game.r#move([0, 1]),
+
+                KeyCode::Char('h') => game.hold(),
+
                 _ => {}
             }
         }
