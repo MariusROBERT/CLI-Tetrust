@@ -13,7 +13,7 @@ impl Options {
         match self {
             Options::NONE => "NONE",
             Options::NEW => "New Game",
-            Options::SCORES => "Scores",
+            Options::SCORES => "Scores (WIP)",
             Options::QUIT => "Quit",
         }
     }
@@ -57,7 +57,10 @@ impl Menu {
     }
 
     pub fn back(&mut self) {
-        self.selected = Options::NONE;
+        match self.selected {
+            Options::SCORES => self.selected = Options::NONE,
+            _ => self.selected = Options::QUIT,
+        }
     }
 
     pub fn get_selected(&self) -> Options {

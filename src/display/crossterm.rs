@@ -102,7 +102,8 @@ fn run_menu<B: Backend>(terminal: &mut Terminal<B>) -> Result<bool, Box<dyn Erro
 
         if let Some(key) = event::read()?.as_key_press_event() {
             match key.code {
-                KeyCode::Esc => return Ok(true),
+                KeyCode::Char('q') => return Ok(true),
+                KeyCode::Esc | KeyCode::Left => menu.back(),
                 KeyCode::Up | KeyCode::Char('w') => menu.move_up(),
                 KeyCode::Down | KeyCode::Char('s') => menu.move_down(),
                 KeyCode::Enter => menu.select(),
