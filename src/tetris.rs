@@ -127,26 +127,37 @@ impl Tetris {
     }
 
     pub fn get_map(&self) -> Vec<Line> {
-        let mut display_map: [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] =
+        let mut display_map_data: [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] =
             [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
-        display_map.copy_from_slice(&self.map[HIDDEN_ROWS..]);
+        display_map_data.copy_from_slice(&self.map[HIDDEN_ROWS..]);
         for y in 0..self.current.pieces().len() {
             for x in 0..self.current.pieces()[y].len() {
                 if self.current.pieces()[y][x] != TetrominoType::E
                     && y as i8 + self.current.pos().0 >= HIDDEN_ROWS as i8
                 {
-                    display_map[(y as i8 + self.current.pos().0 - HIDDEN_ROWS as i8) as usize]
+                    display_map_data
+                        [(y as i8 + self.current.pos().0 - HIDDEN_ROWS as i8) as usize]
                         [(x as i8 + self.current.pos().1) as usize] = self.current.pieces()[y][x];
                 }
             }
         }
 
-        display_map
+        let shadow_map = self.get_current_shadow();
+
+        display_map_data
             .iter()
-            .map(|row| {
+            .enumerate()
+            .map(|(y, row)| {
                 Line::from(
                     row.iter()
-                        .map(|col| Span::raw("  ").bg(col.get_color()))
+                        .enumerate()
+                        .map(|(x, col)| {
+                            if col != TetrominoType::E || shadow_map[y][x] == TetrominoType::E {
+                                Span::raw("  ").bg(col.get_color())
+                            } else {
+                                Span::raw("::").fg(col.get_color())
+                            }
+                        })
                         .collect::<Vec<Span>>(),
                 )
             })
@@ -231,5 +242,42 @@ impl Tetris {
             nexts.push(*tetromino);
         }
         nexts.to_vec()
+    }
+
+    fn get_current_shadow(&self) -> [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] {
+        let mut shadow_map = [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
+
+        let mut worst_down: usize = MAP_HEIGHT - 2; // 2 is the minimum tetromino height IN THE WAY I HANDLED THEM
+        for piece_y in 0..self.current.pieces().len() {
+            for piece_x in 0..self.current.pieces()[piece_y].len() {
+                let mut y: usize =
+                    self.current.pos().0 as usize - (if self.current.pos().0 > 0 { 1 } else { 0 }); //minus 1 but don't do it if it's 0 as it's  usize
+                if self.current.pieces()[piece_y][piece_x] == TetrominoType::E {
+                    continue;
+                }
+                while piece_y + y < MAP_HEIGHT
+                    && self.map[piece_y + y + HIDDEN_ROWS]
+                        [(piece_x as i8 + self.current.pos().1) as usize]
+                        == TetrominoType::E
+                {
+                    y += 1;
+                }
+                if y > 0 && y - 1 < worst_down {
+                    // Avoid y - 1 if y is 0 since it's a usize
+                    worst_down = y - 1;
+                }
+            }
+        }
+
+        for piece_y in 0..self.current.pieces().len() {
+            for piece_x in 0..self.current.pieces()[piece_y].len() {
+                if self.current.pieces()[piece_y][piece_x] != TetrominoType::E {
+                    shadow_map[piece_y + worst_down]
+                        [(piece_x as i8 + self.current.pos().1) as usize] = self.current.shape();
+                }
+            }
+        }
+
+        shadow_map
     }
 }
