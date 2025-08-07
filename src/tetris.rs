@@ -10,7 +10,8 @@ pub const MAP_HEIGHT: usize = 20;
 pub const HIDDEN_ROWS: usize = TRUE_MAP_HEIGHT - MAP_HEIGHT;
 
 pub struct Tetris {
-    score: u32,
+    score: usize,
+    level: usize,
     hold: TetrominoType,
     bag: Vec<TetrominoType>,
     next_bag: Vec<TetrominoType>,
@@ -38,6 +39,7 @@ impl Tetris {
         let current = Tetromino::new(bag.pop().unwrap_or(TetrominoType::E));
         Self {
             score: 0,
+            level: 0,
             hold: TetrominoType::E,
             bag,
             next_bag,
@@ -96,11 +98,22 @@ impl Tetris {
         if self.bag.is_empty() {
             self.refill_bag();
         }
-        self.check_lines();
+        self.score += (self.score + 1)
+            * match self.check_lines() {
+                0 => 0,
+                1 => 40,
+                2 => 100,
+                3 => 300,
+                4 => 1200,
+                _ => {
+                    panic!("You shouldn't clear that much line at once")
+                }
+            };
         self.has_hold_this_round = false;
     }
 
-    fn check_lines(&mut self) {
+    fn check_lines(&mut self) -> u8 {
+        let mut lines: u8 = 0;
         'row: for y in (0..self.map.len()).rev() {
             for x in 0..self.map[y].len() {
                 if self.map[y][x] == TetrominoType::E {
@@ -109,12 +122,13 @@ impl Tetris {
                 }
             }
 
-            self.delete_line(y);
+            lines = self.delete_line(y);
             self.map[0] = [TetrominoType::E; MAP_WIDTH]; // Clear the top line as it won't be moved from the line -1
         }
+        lines
     }
 
-    fn delete_line(&mut self, line: usize) {
+    fn delete_line(&mut self, line: usize) -> u8 {
         for i in (0..line).rev() {
             // Move each line below
             self.map[i + 1] = self.map[i];
@@ -122,8 +136,9 @@ impl Tetris {
         if !self.map[line].into_iter().any(|x| x == TetrominoType::E)
         // If we just copied another full line, delete it again
         {
-            self.delete_line(line);
+            return self.delete_line(line) + 1;
         }
+        1
     }
 
     pub fn get_map(&self) -> Vec<Line> {
@@ -168,7 +183,7 @@ impl Tetris {
             .collect()
     }
 
-    pub fn get_score(&self) -> u32 {
+    pub fn get_score(&self) -> usize {
         self.score
     }
 

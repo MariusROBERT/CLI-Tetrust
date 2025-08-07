@@ -36,7 +36,8 @@ Don't expect this Tetris to be 100% compliant with the official rules.
     - [ ] Super Rotation System
     - [x] Show the next tetrominoes
     - [x] Being able to hold a piece
-    - [ ] Score
+    - [x] Basic scoring system (lines cleared)
+    - [ ] Advanced scoring system (BtB, combos, T-Spin etc.)
     - [ ] Increase level and speed with score
     - [ ] Hard drop
 
