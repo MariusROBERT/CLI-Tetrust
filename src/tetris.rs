@@ -12,6 +12,7 @@ pub const HIDDEN_ROWS: usize = TRUE_MAP_HEIGHT - MAP_HEIGHT;
 pub struct Tetris {
     score: usize,
     level: usize,
+    cleared_lines: usize,
     hold: TetrominoType,
     bag: Vec<TetrominoType>,
     next_bag: Vec<TetrominoType>,
@@ -40,6 +41,7 @@ impl Tetris {
         Self {
             score: 0,
             level: 0,
+            cleared_lines: 0,
             hold: TetrominoType::E,
             bag,
             next_bag,
@@ -98,8 +100,9 @@ impl Tetris {
         if self.bag.is_empty() {
             self.refill_bag();
         }
-        self.score += (self.score + 1)
-            * match self.check_lines() {
+        let cleared_lines = self.check_lines();
+        self.score += (self.level + 1)
+            * match cleared_lines {
                 0 => 0,
                 1 => 40,
                 2 => 100,
@@ -109,6 +112,8 @@ impl Tetris {
                     panic!("You shouldn't clear that much line at once")
                 }
             };
+        self.cleared_lines += cleared_lines as usize;
+        self.level = self.cleared_lines / 10;
         self.has_hold_this_round = false;
     }
 
