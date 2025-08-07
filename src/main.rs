@@ -1,6 +1,8 @@
 mod display;
 mod menu;
 mod tetris;
+mod tetromino;
+mod tetromino_type;
 
 use std::error::Error;
 use std::time::Duration;
