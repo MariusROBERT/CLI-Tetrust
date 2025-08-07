@@ -2,7 +2,7 @@ use crate::tetromino::{Tetromino, TetrominoTrait};
 use crate::tetromino_type::TetrominoType;
 use rand::seq::SliceRandom;
 use ratatui::prelude::{Line, Span};
-use ratatui::style::Stylize;
+use ratatui::style::{Color, Stylize};
 
 pub const TRUE_MAP_HEIGHT: usize = 22;
 pub const MAP_WIDTH: usize = 10;
@@ -130,6 +130,8 @@ impl Tetris {
         let mut display_map_data: [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] =
             [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
         display_map_data.copy_from_slice(&self.map[HIDDEN_ROWS..]);
+
+        //TODO: probably move this to the part where the program create the Span etc.
         for y in 0..self.current.pieces().len() {
             for x in 0..self.current.pieces()[y].len() {
                 if self.current.pieces()[y][x] != TetrominoType::E
@@ -155,7 +157,9 @@ impl Tetris {
                             if col != TetrominoType::E || shadow_map[y][x] == TetrominoType::E {
                                 Span::raw("  ").bg(col.get_color())
                             } else {
-                                Span::raw("::").fg(col.get_color())
+                                Span::raw("::")
+                                    .fg(shadow_map[y][x].get_color())
+                                    .bg(Color::Reset)
                             }
                         })
                         .collect::<Vec<Span>>(),
