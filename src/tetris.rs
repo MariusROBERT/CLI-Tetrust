@@ -498,7 +498,7 @@ impl Tetris {
             }
         }
 
-        if self.bag.len() == 0 {
+        if self.bag.is_empty() {
             self.refill_bag();
         }
         self.check_lines();
@@ -524,10 +524,7 @@ impl Tetris {
             // Move each line below
             self.map[i + 1] = self.map[i];
         }
-        if self.map[line]
-            .into_iter()
-            .position(|x| x == TetrominoType::E)
-            == None
+        if !self.map[line].into_iter().any(|x| x == TetrominoType::E)
         // If we just copied another full line, delete it again
         {
             self.delete_line(line);
@@ -544,8 +541,7 @@ impl Tetris {
                     && y as i8 + self.current.pos.0 >= HIDDEN_ROWS as i8
                 {
                     display_map[(y as i8 + self.current.pos.0 - HIDDEN_ROWS as i8) as usize]
-                        [(x as i8 + self.current.pos.1) as usize] =
-                        self.current.pieces[y][x].clone();
+                        [(x as i8 + self.current.pos.1) as usize] = self.current.pieces[y][x];
                 }
             }
         }

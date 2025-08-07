@@ -2,19 +2,19 @@ pub const OPTION_LEN: usize = 3;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum Options {
-    NONE,
-    NEW,
-    SCORES,
-    QUIT,
+    None,
+    New,
+    Scores,
+    Quit,
 }
 
 impl Options {
     pub fn as_str(&self) -> &'static str {
         match self {
-            Options::NONE => "NONE",
-            Options::NEW => "New Game",
-            Options::SCORES => "Scores (WIP)",
-            Options::QUIT => "Quit",
+            Options::None => "NONE",
+            Options::New => "New Game",
+            Options::Scores => "Scores (WIP)",
+            Options::Quit => "Quit",
         }
     }
 }
@@ -28,27 +28,27 @@ pub struct Menu {
 impl Menu {
     pub fn new() -> Menu {
         Self {
-            hovered: Options::NEW,
-            selected: Options::NONE,
-            options: [Options::NEW, Options::SCORES, Options::QUIT],
+            hovered: Options::New,
+            selected: Options::None,
+            options: [Options::New, Options::Scores, Options::Quit],
         }
     }
 
     pub fn move_down(&mut self) {
         match self.hovered {
-            Options::NEW => self.hovered = Options::SCORES,
-            Options::SCORES => self.hovered = Options::QUIT,
-            Options::QUIT => {}
-            Options::NONE => panic!("You shouldn't hover NONE"),
+            Options::New => self.hovered = Options::Scores,
+            Options::Scores => self.hovered = Options::Quit,
+            Options::Quit => {}
+            Options::None => panic!("You shouldn't hover NONE"),
         };
     }
 
     pub fn move_up(&mut self) {
         match self.hovered {
-            Options::NEW => {}
-            Options::SCORES => self.hovered = Options::NEW,
-            Options::QUIT => self.hovered = Options::SCORES,
-            Options::NONE => panic!("You shouldn't hover NONE"),
+            Options::New => {}
+            Options::Scores => self.hovered = Options::New,
+            Options::Quit => self.hovered = Options::Scores,
+            Options::None => panic!("You shouldn't hover NONE"),
         };
     }
 
@@ -58,8 +58,8 @@ impl Menu {
 
     pub fn back(&mut self) {
         match self.selected {
-            Options::SCORES => self.selected = Options::NONE,
-            _ => self.selected = Options::QUIT,
+            Options::Scores => self.selected = Options::None,
+            _ => self.selected = Options::Quit,
         }
     }
 

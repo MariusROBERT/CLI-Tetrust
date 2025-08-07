@@ -98,8 +98,8 @@ fn run_menu<B: Backend>(terminal: &mut Terminal<B>) -> Result<bool, Box<dyn Erro
         terminal.draw(|frame| menu_ui::draw(frame, &menu))?;
 
         match menu.get_selected() {
-            Options::QUIT => return Ok(true),
-            Options::NEW => return Ok(false),
+            Options::Quit => return Ok(true),
+            Options::New => return Ok(false),
             _ => { /* Don't care */ }
         };
 
