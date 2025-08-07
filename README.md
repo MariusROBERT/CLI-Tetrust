@@ -35,7 +35,7 @@ Don't expect this Tetris to be 100% compliant with the official rules.
 - [ ] Advanced features
     - [ ] Super Rotation System
     - [ ] Show the next tetrominoes
-    - [ ] Being able to hold a piece
+    - [x] Being able to hold a piece
     - [ ] Score
     - [ ] Increase level and speed with score
     - [ ] Hard drop

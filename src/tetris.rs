@@ -20,6 +20,22 @@ pub enum TetrominoType {
     T = 7,
 }
 
+impl PartialEq<TetrominoType> for &TetrominoType {
+    fn eq(&self, other: &TetrominoType) -> bool {
+        match (self, other) {
+            (TetrominoType::E, TetrominoType::E) => true,
+            (TetrominoType::I, TetrominoType::I) => true,
+            (TetrominoType::L, TetrominoType::L) => true,
+            (TetrominoType::J, TetrominoType::J) => true,
+            (TetrominoType::O, TetrominoType::O) => true,
+            (TetrominoType::Z, TetrominoType::Z) => true,
+            (TetrominoType::S, TetrominoType::S) => true,
+            (TetrominoType::T, TetrominoType::T) => true,
+            (_, _) => false,
+        }
+    }
+}
+
 impl TetrominoType {
     fn from_u8(value: u8) -> TetrominoType {
         match value {
@@ -45,6 +61,114 @@ impl TetrominoType {
             TetrominoType::T => Color::Magenta,
             TetrominoType::E => Color::White,
         }
+    }
+
+    pub fn as_ratatui_text(&self) -> Vec<Line> {
+        (match self {
+            TetrominoType::E => {
+                vec![vec![]]
+            }
+            TetrominoType::I => {
+                vec![vec![], vec![], vec![TetrominoType::I; 4]]
+            }
+            TetrominoType::L => {
+                vec![
+                    vec![],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::L,
+                    ],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::L,
+                        TetrominoType::L,
+                        TetrominoType::L,
+                    ],
+                ]
+            }
+            TetrominoType::J => {
+                vec![
+                    vec![],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::J,
+                        TetrominoType::E,
+                        TetrominoType::E,
+                    ],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::J,
+                        TetrominoType::J,
+                        TetrominoType::J,
+                    ],
+                ]
+            }
+            TetrominoType::O => {
+                vec![
+                    vec![],
+                    vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
+                    vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
+                ]
+            }
+            TetrominoType::Z => {
+                vec![
+                    vec![],
+                    vec![TetrominoType::E, TetrominoType::Z, TetrominoType::Z],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::Z,
+                        TetrominoType::Z,
+                    ],
+                ]
+            }
+            TetrominoType::S => {
+                vec![
+                    vec![],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::E,
+                        TetrominoType::S,
+                        TetrominoType::S,
+                    ],
+                    vec![TetrominoType::E, TetrominoType::S, TetrominoType::S],
+                ]
+            }
+            TetrominoType::T => {
+                vec![
+                    vec![],
+                    vec![TetrominoType::E, TetrominoType::E, TetrominoType::T],
+                    vec![
+                        TetrominoType::E,
+                        TetrominoType::T,
+                        TetrominoType::T,
+                        TetrominoType::T,
+                    ],
+                ]
+            }
+        })
+        .iter()
+        .map(|row| {
+            Line::from({
+                if self == TetrominoType::I || self == TetrominoType::O {
+                    let mut before = vec![Span::raw(" ")]; // Single space instead of double to center I and O Tetrominos
+                    before.append(
+                        &mut row
+                            .iter()
+                            .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.get_color()))
+                            .collect::<Vec<Span>>(),
+                    );
+                    before
+                } else {
+                    row.iter()
+                        .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.get_color()))
+                        .collect::<Vec<Span>>()
+                }
+            })
+        })
+        .collect()
     }
 }
 
@@ -271,104 +395,6 @@ impl Tetromino {
             }
         }
     }
-
-    pub fn as_ratatui_text(tetromino_type: &TetrominoType) -> Vec<Line> {
-        //TODO try to center O and I tetromino by moving them 1 char to the right
-        (match tetromino_type {
-            TetrominoType::E => {
-                vec![vec![]]
-            }
-            TetrominoType::I => {
-                vec![vec![], vec![], vec![TetrominoType::I; 4]]
-            }
-            TetrominoType::L => {
-                vec![
-                    vec![],
-                    vec![
-                        TetrominoType::E,
-                        TetrominoType::E,
-                        TetrominoType::E,
-                        TetrominoType::L,
-                    ],
-                    vec![
-                        TetrominoType::E,
-                        TetrominoType::L,
-                        TetrominoType::L,
-                        TetrominoType::L,
-                    ],
-                ]
-            }
-            TetrominoType::J => {
-                vec![
-                    vec![],
-                    vec![
-                        TetrominoType::E,
-                        TetrominoType::J,
-                        TetrominoType::E,
-                        TetrominoType::E,
-                    ],
-                    vec![
-                        TetrominoType::E,
-                        TetrominoType::J,
-                        TetrominoType::J,
-                        TetrominoType::J,
-                    ],
-                ]
-            }
-            TetrominoType::O => {
-                vec![
-                    vec![],
-                    vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
-                    vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
-                ]
-            }
-            TetrominoType::Z => {
-                vec![
-                    vec![],
-                    vec![TetrominoType::E, TetrominoType::Z, TetrominoType::Z],
-                    vec![
-                        TetrominoType::E,
-                        TetrominoType::E,
-                        TetrominoType::Z,
-                        TetrominoType::Z,
-                    ],
-                ]
-            }
-            TetrominoType::S => {
-                vec![
-                    vec![],
-                    vec![
-                        TetrominoType::E,
-                        TetrominoType::E,
-                        TetrominoType::S,
-                        TetrominoType::S,
-                    ],
-                    vec![TetrominoType::E, TetrominoType::S, TetrominoType::S],
-                ]
-            }
-            TetrominoType::T => {
-                vec![
-                    vec![],
-                    vec![TetrominoType::E, TetrominoType::E, TetrominoType::T],
-                    vec![
-                        TetrominoType::E,
-                        TetrominoType::T,
-                        TetrominoType::T,
-                        TetrominoType::T,
-                    ],
-                ]
-            }
-        })
-        .iter()
-        .map(|row| {
-            Line::from(
-                row.iter()
-                    .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.get_color()))
-                    .collect::<Vec<Span>>(),
-            )
-        })
-        .collect()
-    }
 }
 
 pub struct Tetris {
@@ -440,6 +466,23 @@ impl Tetris {
             }
         }
         self.current = Tetromino::new(self.bag.pop().unwrap_or(TetrominoType::E));
+
+        /*if self.current.pieces.iter().enumerate().any(|(y, row)| {
+            row.iter().enumerate().any(|(x, tile)| {
+                if (tile == &TetrominoType::E) {
+                    return false;
+                }
+                if (self.map[(self.current.pos.0 + y as i8) as usize]
+                    [(self.current.pos.1 + x as i8) as usize]
+                    != TetrominoType::E)
+                {
+                    return true;
+                }
+                false
+            })
+        }) {
+            todo!("Game lost")
+        }*/
 
         for y in 0..self.current.pieces.len() {
             for x in 0..self.current.pieces[y].len() {

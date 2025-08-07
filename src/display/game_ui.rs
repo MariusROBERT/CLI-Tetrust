@@ -1,5 +1,5 @@
 use crate::display::utils::center::center;
-use crate::tetris::{Tetris, Tetromino};
+use crate::tetris::Tetris;
 use ratatui::layout::{Alignment, Constraint, Flex, Layout, Rect};
 use ratatui::text::Text;
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
@@ -50,7 +50,7 @@ fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
     frame.render_widget(block, horizontal_centered_layout);
 
     frame.render_widget(
-        Paragraph::new(Text::from(Tetromino::as_ratatui_text(&game.get_hold()))).block(
+        Paragraph::new(Text::from(game.get_hold().as_ratatui_text())).block(
             Block::bordered()
                 .title_alignment(Alignment::Center)
                 .border_type(BorderType::Rounded)
