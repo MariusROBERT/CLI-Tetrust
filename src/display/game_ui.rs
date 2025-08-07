@@ -1,5 +1,6 @@
 use crate::display::utils::center::center;
 use crate::tetris::Tetris;
+use crate::tetromino_type::TetrominoType;
 use ratatui::layout::{Alignment, Constraint, Flex, Layout, Rect};
 use ratatui::style::{Color, Stylize};
 use ratatui::text::{Line, Text};
@@ -91,7 +92,15 @@ fn draw_right(frame: &mut Frame, game: &Tetris, area: Rect) {
     let nexts = game.get_nexts();
     let next_display: Vec<Line> = nexts
         .iter()
-        .flat_map(|tetromino| tetromino.as_ratatui_text())
+        .flat_map(|tetromino| {
+            if tetromino == TetrominoType::I {
+                tetromino.as_ratatui_text()
+            } else {
+                std::iter::once(Line::from(""))
+                    .chain(tetromino.as_ratatui_text())
+                    .collect::<Vec<Line>>()
+            }
+        })
         .collect::<Vec<Line>>();
 
     frame.render_widget(
