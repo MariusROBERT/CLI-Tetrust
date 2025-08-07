@@ -63,11 +63,10 @@ impl TetrominoType {
                 vec![vec![]]
             }
             TetrominoType::I => {
-                vec![vec![], vec![], vec![TetrominoType::I; 4]]
+                vec![vec![], vec![TetrominoType::I; 4]]
             }
             TetrominoType::L => {
                 vec![
-                    vec![],
                     vec![
                         TetrominoType::E,
                         TetrominoType::E,
@@ -84,7 +83,6 @@ impl TetrominoType {
             }
             TetrominoType::J => {
                 vec![
-                    vec![],
                     vec![
                         TetrominoType::E,
                         TetrominoType::J,
@@ -101,14 +99,12 @@ impl TetrominoType {
             }
             TetrominoType::O => {
                 vec![
-                    vec![],
                     vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
                     vec![TetrominoType::E, TetrominoType::O, TetrominoType::O],
                 ]
             }
             TetrominoType::Z => {
                 vec![
-                    vec![],
                     vec![TetrominoType::E, TetrominoType::Z, TetrominoType::Z],
                     vec![
                         TetrominoType::E,
@@ -120,7 +116,6 @@ impl TetrominoType {
             }
             TetrominoType::S => {
                 vec![
-                    vec![],
                     vec![
                         TetrominoType::E,
                         TetrominoType::E,
@@ -132,7 +127,6 @@ impl TetrominoType {
             }
             TetrominoType::T => {
                 vec![
-                    vec![],
                     vec![TetrominoType::E, TetrominoType::E, TetrominoType::T],
                     vec![
                         TetrominoType::E,

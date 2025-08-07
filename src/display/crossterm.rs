@@ -60,7 +60,7 @@ fn run_game<B: Backend>(
     let mut last_tick = Instant::now();
 
     loop {
-        terminal.draw(|frame| game_ui::draw(frame, &mut game))?;
+        terminal.draw(|frame| game_ui::draw(frame, &game))?;
 
         if game.is_lost() {
             return Ok(false);

@@ -215,4 +215,15 @@ impl Tetris {
     pub fn get_hold(&self) -> TetrominoType {
         self.hold
     }
+
+    pub fn get_nexts(&self) -> Vec<TetrominoType> {
+        let mut nexts: Vec<TetrominoType> = Vec::new();
+        for tetromino in &self.next_bag {
+            nexts.push(*tetromino);
+        }
+        for tetromino in &self.bag {
+            nexts.push(*tetromino);
+        }
+        nexts.iter().copied().rev().collect()
+    }
 }

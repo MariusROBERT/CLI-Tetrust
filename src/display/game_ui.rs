@@ -1,11 +1,12 @@
 use crate::display::utils::center::center;
 use crate::tetris::Tetris;
 use ratatui::layout::{Alignment, Constraint, Flex, Layout, Rect};
-use ratatui::text::Text;
+use ratatui::style::{Color, Stylize};
+use ratatui::text::{Line, Text};
 use ratatui::widgets::{Block, BorderType, Borders, Paragraph};
 use ratatui::{Frame, border, symbols};
 
-pub fn draw(frame: &mut Frame, game: &mut Tetris) {
+pub fn draw(frame: &mut Frame, game: &Tetris) {
     let chunks = Layout::horizontal([
         Constraint::Fill(1),
         Constraint::Length((10 * 2) + 2),
@@ -17,7 +18,7 @@ pub fn draw(frame: &mut Frame, game: &mut Tetris) {
     draw_right(frame, game, chunks[2]);
 }
 
-fn draw_game(frame: &mut Frame, game: &mut Tetris, area: Rect) {
+fn draw_game(frame: &mut Frame, game: &Tetris, area: Rect) {
     let block = Block::bordered()
         .title_alignment(Alignment::Center)
         .border_set(symbols::border::Set {
@@ -27,15 +28,16 @@ fn draw_game(frame: &mut Frame, game: &mut Tetris, area: Rect) {
             bottom_right: symbols::line::NORMAL.horizontal_up,
             ..symbols::border::PLAIN
         })
+        .bg(Color::DarkGray)
         .title("Tetrust");
 
     let game_display = Text::from(game.get_map());
     let layout = center(area, Constraint::Length(20), Constraint::Length(20));
-    frame.render_widget(game_display, layout);
     frame.render_widget(block, area);
+    frame.render_widget(game_display, layout);
 }
 
-fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
+fn draw_left(frame: &mut Frame, game: &Tetris, area: Rect) {
     let horizontal_centered_layout = center(area, Constraint::Fill(1), Constraint::Fill(1));
     let vertical_chunks = Layout::vertical([Constraint::Fill(1), Constraint::Fill(1)])
         .flex(Flex::Center)
@@ -50,12 +52,16 @@ fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
     frame.render_widget(block, horizontal_centered_layout);
 
     frame.render_widget(
-        Paragraph::new(Text::from(game.get_hold().as_ratatui_text())).block(
+        Paragraph::new(
+            std::iter::once(Line::from(""))
+                .chain(game.get_hold().as_ratatui_text())
+                .collect::<Vec<Line>>(),
+        )
+        .block(
             Block::bordered()
                 .title_alignment(Alignment::Center)
                 .border_type(BorderType::Rounded)
-                .title(" Hold "), // .bg(game.get_hold().get_colo
-                                  // r()),
+                .title(" Hold "),
         ),
         center(
             vertical_chunks[0],
@@ -70,16 +76,32 @@ fn draw_left(frame: &mut Frame, game: &mut Tetris, area: Rect) {
     );
 }
 
-fn draw_right(frame: &mut Frame, game: &mut Tetris, area: Rect) {
+fn draw_right(frame: &mut Frame, game: &Tetris, area: Rect) {
     let horizontal_layout = Layout::horizontal([Constraint::Fill(1)])
         .flex(Flex::Center)
         .split(area)[0];
-    let vertical_layout = Layout::vertical([Constraint::Fill(1)])
-        // .flex(Flex::Center)
-        .split(horizontal_layout)[0];
+    let vertical_layout = Layout::vertical([Constraint::Fill(1)]).split(horizontal_layout)[0];
+
     let block = Block::bordered()
         .title_alignment(Alignment::Center)
         .borders(border!(TOP, BOTTOM, RIGHT))
         .title("Next");
     frame.render_widget(block, vertical_layout);
+
+    let nexts = game.get_nexts();
+    let next_display: Vec<Line> = nexts
+        .iter()
+        .flat_map(|tetromino| tetromino.as_ratatui_text())
+        .collect::<Vec<Line>>();
+
+    frame.render_widget(
+        Paragraph::new(next_display),
+        center(
+            Layout::horizontal([Constraint::Fill(1)])
+                .margin(1)
+                .split(vertical_layout)[0],
+            Constraint::Length(10),
+            Constraint::Fill(1),
+        ),
+    );
 }
