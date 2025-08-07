@@ -218,12 +218,18 @@ impl Tetris {
 
     pub fn get_nexts(&self) -> Vec<TetrominoType> {
         let mut nexts: Vec<TetrominoType> = Vec::new();
-        for tetromino in &self.next_bag {
+        for tetromino in self.bag.iter().rev() {
+            if nexts.len() >= 5 {
+                break;
+            }
             nexts.push(*tetromino);
         }
-        for tetromino in &self.bag {
+        for tetromino in self.next_bag.iter().rev() {
+            if nexts.len() >= 5 {
+                break;
+            }
             nexts.push(*tetromino);
         }
-        nexts.iter().copied().rev().collect()
+        nexts.to_vec()
     }
 }
