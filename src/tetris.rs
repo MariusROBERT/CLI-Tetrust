@@ -4,6 +4,7 @@ use rand::seq::SliceRandom;
 use ratatui::prelude::{Line, Span};
 use ratatui::style::{Color, Stylize};
 
+pub const FPS: usize = 60;
 pub const TRUE_MAP_HEIGHT: usize = 22;
 pub const MAP_WIDTH: usize = 10;
 pub const MAP_HEIGHT: usize = 20;
@@ -18,10 +19,13 @@ pub struct Tetris {
     next_bag: Vec<TetrominoType>,
     map: [[TetrominoType; MAP_WIDTH]; TRUE_MAP_HEIGHT],
     current: Tetromino,
-    tick: u8,
+    tick: usize,
     is_blocked: bool,
     is_lost: bool,
     has_hold_this_round: bool,
+
+    last_fall: usize,
+    last_lock: usize,
 }
 
 impl Tetris {
@@ -51,24 +55,44 @@ impl Tetris {
             is_blocked: false,
             is_lost: false,
             has_hold_this_round: false,
+            last_fall: 0,
+            last_lock: 0,
         }
     }
 
     pub fn on_tick(&mut self) {
-        self.tick = (self.tick + 1) % 60; //TODO update the value "60" to increase speed at higher levels
-        if self.tick != 0 {
-            return;
+        self.tick += 1;
+
+        // will run every
+        //      (0.8 - ((self.level) * 0.007)).powf(self.level) SECONDS
+        if self.last_fall
+            + (FPS as f64 * (0.8 - ((self.level as f64) * 0.007)).powf(self.level as f64)) as usize
+            <= self.tick
+        {
+            self.last_fall = self.tick;
+
+            if self.can_move([1, 0]) {
+                self.r#move([1, 0]);
+                self.is_blocked = false;
+            } else {
+                self.is_blocked = true;
+                self.last_lock = self.tick;
+            }
         }
-        if self.can_move([1, 0]) {
-            self.r#move([1, 0]);
-            return;
+
+        //lock 30 tick after can't move if is_blocked is true
+        if self.last_lock + (FPS / 2) <= self.tick {
+            self.last_lock = self.tick;
+
+            if !self.can_move([1, 0]) {
+                if self.is_blocked {
+                    self.lock_current();
+                    self.is_blocked = false;
+                } else {
+                    self.is_blocked = true;
+                }
+            }
         }
-        if self.is_blocked {
-            self.lock_current();
-            self.is_blocked = false;
-            return;
-        }
-        self.is_blocked = true;
     }
 
     fn lock_current(&mut self) {
@@ -146,7 +170,7 @@ impl Tetris {
         1
     }
 
-    pub fn get_map(&self) -> Vec<Line> {
+    pub fn get_map(&self) -> Vec<Line<'_>> {
         let mut display_map_data: [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] =
             [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
         display_map_data.copy_from_slice(&self.map[HIDDEN_ROWS..]);
@@ -225,6 +249,9 @@ impl Tetris {
 
     pub fn r#move(&mut self, vector: [i8; 2]) {
         if self.can_move(vector) {
+            if vector[0] != 0 {
+                self.last_fall = self.tick;
+            }
             self.current.r#move(vector);
         }
     }
