@@ -63,15 +63,15 @@ impl Menu {
         }
     }
 
-    pub fn get_selected(&self) -> Options {
+    pub fn selected(&self) -> Options {
         self.selected
     }
 
-    pub fn get_options(&self) -> [Options; 3] {
+    pub fn options(&self) -> [Options; 3] {
         self.options
     }
 
-    pub fn get_hovered(&self) -> Options {
+    pub fn hovered(&self) -> Options {
         self.hovered
     }
 }

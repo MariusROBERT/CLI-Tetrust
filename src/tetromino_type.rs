@@ -43,7 +43,7 @@ impl TetrominoType {
         }
     }
 
-    pub fn get_color(&self) -> Color {
+    pub fn color(&self) -> Color {
         match self {
             TetrominoType::I => Color::Cyan,
             TetrominoType::L => Color::Yellow,
@@ -56,7 +56,7 @@ impl TetrominoType {
         }
     }
 
-    pub fn as_ratatui_text(&self) -> Vec<Line> {
+    pub fn as_ratatui_text(&self) -> Vec<Line<'_>> {
         //TODO try to center O and I tetromino by moving them 1 char to the right
         (match self {
             TetrominoType::E => {
@@ -145,13 +145,13 @@ impl TetrominoType {
                     before.append(
                         &mut row
                             .iter()
-                            .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.get_color()))
+                            .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.color()))
                             .collect::<Vec<Span>>(),
                     );
                     before
                 } else {
                     row.iter()
-                        .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.get_color()))
+                        .map(|tetromino_type| Span::raw("  ").bg(tetromino_type.color()))
                         .collect::<Vec<Span>>()
                 }
             })

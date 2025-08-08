@@ -170,7 +170,7 @@ impl Tetris {
         1
     }
 
-    pub fn get_map(&self) -> Vec<Line<'_>> {
+    pub fn display_map(&self) -> Vec<Line<'_>> {
         let mut display_map_data: [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] =
             [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
         display_map_data.copy_from_slice(&self.map[HIDDEN_ROWS..]);
@@ -188,7 +188,7 @@ impl Tetris {
             }
         }
 
-        let shadow_map = self.get_current_shadow();
+        let shadow_map = self.current_shadow();
 
         display_map_data
             .iter()
@@ -199,10 +199,10 @@ impl Tetris {
                         .enumerate()
                         .map(|(x, col)| {
                             if col != TetrominoType::E || shadow_map[y][x] == TetrominoType::E {
-                                Span::raw("  ").bg(col.get_color())
+                                Span::raw("  ").bg(col.color())
                             } else {
                                 Span::raw("::")
-                                    .fg(shadow_map[y][x].get_color())
+                                    .fg(shadow_map[y][x].color())
                                     .bg(Color::Reset)
                             }
                         })
@@ -212,7 +212,7 @@ impl Tetris {
             .collect()
     }
 
-    pub fn get_score(&self) -> usize {
+    pub fn score(&self) -> usize {
         self.score
     }
 
@@ -260,7 +260,7 @@ impl Tetris {
         self.is_lost
     }
 
-    pub fn hold(&mut self) {
+    pub fn hold_current(&mut self) {
         if self.has_hold_this_round {
             return;
         }
@@ -274,11 +274,11 @@ impl Tetris {
         self.has_hold_this_round = true;
     }
 
-    pub fn get_hold(&self) -> TetrominoType {
+    pub fn hold(&self) -> TetrominoType {
         self.hold
     }
 
-    pub fn get_nexts(&self) -> Vec<TetrominoType> {
+    pub fn nexts(&self) -> Vec<TetrominoType> {
         let mut nexts: Vec<TetrominoType> = Vec::new();
         for tetromino in self.bag.iter().rev() {
             if nexts.len() >= 5 {
@@ -295,7 +295,7 @@ impl Tetris {
         nexts.to_vec()
     }
 
-    fn get_current_shadow(&self) -> [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] {
+    fn current_shadow(&self) -> [[TetrominoType; MAP_WIDTH]; MAP_HEIGHT] {
         let mut shadow_map = [[TetrominoType::E; MAP_WIDTH]; MAP_HEIGHT];
 
         let mut worst_down: usize = MAP_HEIGHT - 2; // 2 is the minimum tetromino height IN THE WAY I HANDLED THEM

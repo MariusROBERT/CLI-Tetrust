@@ -83,7 +83,7 @@ fn run_game<B: Backend>(
                 KeyCode::Char('s') => game.r#move([1, 0]),
                 KeyCode::Char('d') => game.r#move([0, 1]),
 
-                KeyCode::Char('h') => game.hold(),
+                KeyCode::Char('h') => game.hold_current(),
 
                 _ => {}
             }
@@ -97,7 +97,7 @@ fn run_menu<B: Backend>(terminal: &mut Terminal<B>) -> Result<bool, Box<dyn Erro
     loop {
         terminal.draw(|frame| menu_ui::draw(frame, &menu))?;
 
-        match menu.get_selected() {
+        match menu.selected() {
             Options::Quit => return Ok(true),
             Options::New => return Ok(false),
             _ => { /* Don't care */ }

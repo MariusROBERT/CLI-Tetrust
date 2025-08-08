@@ -32,7 +32,7 @@ fn draw_game(frame: &mut Frame, game: &Tetris, area: Rect) {
         .bg(Color::DarkGray)
         .title("Tetrust");
 
-    let game_display = Text::from(game.get_map());
+    let game_display = Text::from(game.display_map());
     let layout = center(area, Constraint::Length(20), Constraint::Length(20));
     frame.render_widget(block, area);
     frame.render_widget(game_display, layout);
@@ -55,7 +55,7 @@ fn draw_left(frame: &mut Frame, game: &Tetris, area: Rect) {
     frame.render_widget(
         Paragraph::new(
             std::iter::once(Line::from(""))
-                .chain(game.get_hold().as_ratatui_text())
+                .chain(game.hold().as_ratatui_text())
                 .collect::<Vec<Line>>(),
         )
         .block(
@@ -72,7 +72,7 @@ fn draw_left(frame: &mut Frame, game: &Tetris, area: Rect) {
     );
 
     frame.render_widget(
-        Paragraph::new(format!("Score: {}", game.get_score())).centered(), // .block(Block::bordered().border_type(BorderType::Rounded) )
+        Paragraph::new(format!("Score: {}", game.score())).centered(), // .block(Block::bordered().border_type(BorderType::Rounded) )
         center(vertical_chunks[1], Constraint::Fill(1), Constraint::Fill(1)),
     );
 }
@@ -89,7 +89,7 @@ fn draw_right(frame: &mut Frame, game: &Tetris, area: Rect) {
         .title("Next");
     frame.render_widget(block, vertical_layout);
 
-    let nexts = game.get_nexts();
+    let nexts = game.nexts();
     let next_display: Vec<Line> = nexts
         .iter()
         .flat_map(|tetromino| {

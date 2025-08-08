@@ -24,10 +24,12 @@ pub fn draw(frame: &mut Frame, menu: &Menu) {
         .title("Tetrust");
     frame.render_widget(block, horizontal_centered_layout);
 
-    for (id, option) in menu.get_options().iter().enumerate() {
+    for (id, option) in menu.options().iter().enumerate() {
         let mut text: Text = Text::from(option.as_str());
-        if menu.get_hovered() == *option {
-            text = text.bg(Color::Gray).fg(Color::White);
+        if menu.hovered() == *option {
+            text = text
+                .bg(Color::from_u32(0x707070))
+                .fg(Color::from_u32(0xffffff));
         }
         frame.render_widget(text.centered(), vertical_chunks[id]);
     }
